@@ -1,102 +1,60 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>ROK Text Formatter</title>
-  <style>
-    #editor {
-      border: 1px solid #ccc;
-      min-height: 200px;
-      padding: 10px;
-      font-size: 18px;
-    }
-    .toolbar button, .toolbar input[type="color"] {
-      margin-right: 5px;
-      font-size: 16px;
-    }
-    #output {
-      width: 100%;
-      height: 200px;
-      font-family: monospace;
-      margin-top: 10px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trình định dạng văn bản ROK</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
 </head>
 <body>
-  <div class="toolbar">
-    <button onclick="format('bold')">🅑</button>
-    <button onclick="format('italic')">🅘</button>
-    <input type="color" id="colorPicker" onchange="applyColor(this.value)">
-    <button onclick="exportROK()">💾 Xuất mã ROK</button>
+  <div class="header">
+    <h1 data-i18n="app_title">📝 Trình định dạng văn bản cho ROK</h1>
+    <div class="lang-switch">
+      <select id="languageSelector">
+        <option value="vi">🇻🇳 Việt</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="fr">🇫🇷 Français</option>
+      </select>
+    </div>
   </div>
 
-  <div id="editor" contenteditable="true"></div>
-  <textarea id="output" readonly></textarea>
+  <div class="toolbar">
+    <button id="boldBtn" title="In đậm"><b>B</b></button>
+    <button id="italicBtn" title="In nghiêng"><i>I</i></button>
+    <button id="underlineBtn" title="Gạch chân"><u>U</u></button>
 
-  <script>
-    function format(cmd) {
-      document.execCommand(cmd, false, null);
-    }
+    <div id="color-picker-btn" class="color-button" title="Chọn màu">🎨</div>
 
-    function applyColor(color) {
-      document.execCommand("foreColor", false, color);
-    }
+    <div class="font-size-group">
+     <label for="fontSize" data-i18n="size">Kích cỡ</label>
+     <select id="fontSize">
+      <option value="12">12px</option>
+      <option value="14">14px</option>
+      <option value="16" selected>16px</option>
+      <option value="18">18px</option>
+      <option value="20">20px</option>
+      <option value="24">24px</option>
+      <option value="28">28px</option>
+      <option value="32">32px</option>
+      <option value="36">36px</option>
+      <option value="40">40px</option>
+    </select>
 
-    function exportROK() {
-      const editor = document.getElementById("editor");
-      let output = convertToROK(editor);
-      document.getElementById("output").value = output;
-    }
+    </div>
 
-    function convertToROK(container) {
-      function traverse(node) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          return node.nodeValue;
-        }
+    <button id="exportBtn" data-i18n="export" style="margin-left:auto;">💾 Xuất mã ROK</button>
+  </div>
 
-        let tagOpen = "", tagClose = "", content = "";
+  <div id="editor" contenteditable="true" data-placeholder="✍️ Nhập văn bản tại đây..."></div>
 
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const tag = node.tagName.toLowerCase();
+  <div id="outputContainer">
+    <h3 data-i18n="output_label">📤 Văn bản đã định dạng</h3>
+    <pre id="output">Văn bản xuất ra sẽ hiển thị ở đây...</pre>
+  </div>
 
-          let styles = getComputedStyle(node);
-          let color = styles.color;
-
-          let isBold = styles.fontWeight === "700" || tag === "b" || node.style.fontWeight === "bold";
-          let isItalic = styles.fontStyle === "italic" || tag === "i" || node.style.fontStyle === "italic";
-
-          if (isBold && isItalic) {
-            tagOpen += "<b><i>";
-            tagClose = "</i></b>" + tagClose;
-          } else if (isBold) {
-            tagOpen += "<b>";
-            tagClose = "</b>" + tagClose;
-          } else if (isItalic) {
-            tagOpen += "<i>";
-            tagClose = "</i>" + tagClose;
-          }
-
-          if (color && color !== "rgb(0, 0, 0)") {
-            const hex = rgbToHex(color);
-            tagOpen += `<color=${hex}>`;
-            tagClose = `</color>` + tagClose;
-          }
-        }
-
-        for (let child of node.childNodes) {
-          content += traverse(child);
-        }
-
-        return tagOpen + content + tagClose;
-      }
-
-      function rgbToHex(rgb) {
-        const result = rgb.match(/\d+/g).map(x => parseInt(x).toString(16).padStart(2, '0'));
-        return `#${result.join('').toUpperCase()}`;
-      }
-
-      return traverse(container).trim();
-    }
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+  <script src="script.js"></script>
+  <script src="lang.js"></script>
 </body>
 </html>

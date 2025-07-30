@@ -1,0 +1,140 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f2f2f2;
+}
+
+.header {
+  background: #004aad;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.6em;
+}
+
+.lang-switch select {
+  font-size: 1em;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
+  background: white;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 10px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.toolbar button,
+.toolbar select,
+.color-button {
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.toolbar button:hover,
+.toolbar select:hover,
+.color-button:hover {
+  background: #e6f0ff;
+  border-color: #888;
+}
+
+.toolbar button:active {
+  background: #d0e3ff;
+  border-color: #004aad;
+}
+
+.color-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2em;
+  height: 3.2em;
+  font-size: 18px;
+}
+
+#editor {
+  width: calc(100% - 40px);
+  height: 240px;
+  margin: 20px;
+  padding: 12px;
+  font-size: 16px;
+  resize: vertical;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+#editor:empty:before {
+  content: attr(data-placeholder);
+  color: #888;
+  font-style: italic;
+  pointer-events: none;
+}
+
+#outputContainer {
+  background: #fff;
+  border-top: 1px solid #ccc;
+  padding: 20px;
+}
+
+#outputContainer h3 {
+  margin-top: 0;
+  font-size: 1.2em;
+}
+
+#output {
+  white-space: pre-wrap;
+  background: #f4f4f4;
+  padding: 12px;
+  border: 1px dashed #aaa;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.font-size-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  height: 50px;
+  background: #fff;
+}
+
+.font-size-group label {
+  font-weight: bold;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.font-size-group select {
+  font-size: 14px;
+  padding: 4px 8px;
+  border: none;
+  outline: none;
+  background: transparent;
+  appearance: none;
+}
