@@ -117,3 +117,17 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   const output = document.getElementById("output");
   output.textContent = result || "Văn bản xuất ra sẽ hiển thị ở đây...";
 });
+
+document.getElementById("copyBtn").addEventListener("click", () => {
+  const output = document.getElementById("output").textContent;
+  if (!output.trim()) return;
+
+  navigator.clipboard.writeText(output)
+    .then(() => {
+      alert("Đã sao chép mã ROK vào clipboard!");
+    })
+    .catch(err => {
+      console.error("Lỗi khi sao chép: ", err);
+      alert("Không thể sao chép. Trình duyệt không hỗ trợ?");
+    });
+});
