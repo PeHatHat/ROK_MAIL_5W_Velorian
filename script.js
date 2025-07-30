@@ -20,15 +20,33 @@ const pickr = Pickr.create({
 
 pickr.on('save', (color) => {
   currentColor = color.toHEXA().toString();
-  applyStyleToSelection('color', currentColor);
+  applyStyleManual('color', currentColor);
   pickr.hide();
 });
 
 // ========== FORMAT BUTTONS ==========
-function applyStyleToSelection(style, value) {
+
+document.getElementById("boldBtn").addEventListener("click", () => {
+  document.execCommand("bold");
+});
+
+document.getElementById("italicBtn").addEventListener("click", () => {
+  document.execCommand("italic");
+});
+
+document.getElementById("underlineBtn").addEventListener("click", () => {
+  document.execCommand("underline");
+});
+
+document.getElementById("fontSize").addEventListener("change", () => {
+  const size = document.getElementById("fontSize").value;
+  applyStyleManual("fontSize", `${size}px`);
+});
+
+// Áp dụng style thủ công (cho color, size)
+function applyStyleManual(style, value) {
   const selection = window.getSelection();
   if (!selection.rangeCount) return;
-
   const range = selection.getRangeAt(0);
   if (range.collapsed) return;
 
@@ -38,27 +56,6 @@ function applyStyleToSelection(style, value) {
   range.deleteContents();
   range.insertNode(span);
 }
-
-function toggleStyle(style, value) {
-  applyStyleToSelection(style, value);
-}
-
-document.getElementById("boldBtn").addEventListener("click", () => {
-  toggleStyle("fontWeight", "bold");
-});
-
-document.getElementById("italicBtn").addEventListener("click", () => {
-  toggleStyle("fontStyle", "italic");
-});
-
-document.getElementById("underlineBtn").addEventListener("click", () => {
-  toggleStyle("textDecoration", "underline");
-});
-
-document.getElementById("fontSize").addEventListener("change", () => {
-  const size = document.getElementById("fontSize").value;
-  applyStyleToSelection("fontSize", `${size}px`);
-});
 
 // ========== LANG INIT ==========
 document.addEventListener("DOMContentLoaded", () => {
@@ -89,24 +86,20 @@ function convertNodeToROK(node) {
   let tags = [];
   const style = node.style;
 
-  // Kiểm tra các định dạng áp dụng
   if (style.fontWeight === 'bold' || node.tagName === 'B') tags.push(['<b>', '</b>']);
   if (style.fontStyle === 'italic' || node.tagName === 'I') tags.push(['<i>', '</i>']);
   if (style.textDecoration.includes('underline') || node.tagName === 'U') tags.push(['<u>', '</u>']);
 
-  // Màu
   if (style.color && style.color !== 'rgb(0, 0, 0)' && style.color !== '#000000') {
     const hex = rgbToHex(style.color);
     tags.push([`<color=#${hex}>`, `</color>`]);
   }
 
-  // Kích cỡ
   if (style.fontSize && style.fontSize !== '16px') {
     const size = parseInt(style.fontSize);
     tags.push([`<size=${size}>`, `</size>`]);
   }
 
-  // Lồng thẻ
   for (let i = tags.length - 1; i >= 0; i--) {
     content = tags[i][0] + content + tags[i][1];
   }
