@@ -88,7 +88,6 @@ function convertNodeToROK(node) {
 
   if (style.fontWeight === 'bold' || node.tagName === 'B') tags.push(['<b>', '</b>']);
   if (style.fontStyle === 'italic' || node.tagName === 'I') tags.push(['<i>', '</i>']);
-  if (style.textDecoration.includes('underline') || node.tagName === 'U') tags.push(['<u>', '</u>']);
 
   if (style.color && style.color !== 'rgb(0, 0, 0)' && style.color !== '#000000') {
     const hex = rgbToHex(style.color);
