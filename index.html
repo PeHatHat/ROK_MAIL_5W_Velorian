@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trình định dạng văn bản ROK</title>
+  <title>ROK Formatter</title>
+  <link rel="icon" type="image/x-ico" href="icon.ico" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
 </head>
@@ -11,6 +12,7 @@
   <div class="header">
     <h1 data-i18n="app_title">📝 Trình định dạng văn bản cho ROK</h1>
     <div class="lang-switch">
+      <label for="languageSelector" data-i18n="language">Ngôn ngữ</label>
       <select id="languageSelector">
         <option value="vi">🇻🇳 Việt</option>
         <option value="en">🇬🇧 English</option>
@@ -20,9 +22,11 @@
   </div>
 
   <div class="toolbar">
+    <button id="undoBtn" title="Hoàn tác" data-i18n="undo">↩️</button>
+    <button id="redoBtn" title="Làm lại" data-i18n="redo">↪️</button>
     <button id="boldBtn" title="In đậm"><b>B</b></button>
     <button id="italicBtn" title="In nghiêng"><i>I</i></button>
-    <button id="color-picker-btn" title="Đổi màu chữ">🎨 Màu</button>
+    <button id="color-picker-btn" title="Đổi màu chữ">🎨</button>
     <div class="font-size-group">
      <label for="fontSize" data-i18n="size">Kích cỡ</label>
      <select id="fontSize">
@@ -37,22 +41,29 @@
       <option value="36">36px</option>
       <option value="40">40px</option>
     </select>
-
     </div>
 
     <button id="exportBtn" data-i18n="export" style="margin-left:auto;">💾 Xuất mã ROK</button>
   </div>
 
-  <div id="editor" contenteditable="true" data-placeholder="✍️ Nhập văn bản tại đây..."></div>
+  <div id="editor" contenteditable="true" data-placeholder="✍️ .........."></div>
+
+  <p id="charCount" style="margin: 6px 20px 0; font-weight: bold;">
+    Đã dùng: 0 / 2000 ký tự
+  </p>
 
   <div id="outputContainer">
     <h3 data-i18n="output_label">📤 Văn bản đã định dạng</h3>
     <pre id="output">Văn bản xuất ra sẽ hiển thị ở đây...</pre>
-      <button id="copyBtn">📋 Sao chép</button>
+    <button id="copyBtn" data-i18n="copy">📋 Sao chép</button>
+    <button id="saveBtn" data-i18n="save">💾 Lưu vào máy</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
   <script src="script.js"></script>
   <script src="lang.js"></script>
 </body>
+<footer class="footer">
+  © 2025 PeHatHat. All rights reserved.
+</footer>
 </html>

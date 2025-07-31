@@ -4,21 +4,36 @@ const translations = {
     export: "💾 Xuất mã ROK",
     output_label: "📤 Văn bản đã định dạng",
     output_placeholder: "Văn bản xuất ra sẽ hiển thị ở đây...",
-    size: "Kích cỡ"
+    size: "Kích cỡ",
+    save: "💾 Lưu file TXT",
+    copy: "📋 Sao chép",
+    undo: "↩️ Hoàn tác",
+    redo: "↪️ Làm lại",
+    language: "Ngôn ngữ"
   },
   en: {
     app_title: "📝 ROK Text Formatter",
     export: "💾 Export ROK Code",
     output_label: "📤 Formatted Output",
     output_placeholder: "Formatted text will appear here...",
-    size: "Size"
+    size: "Size",
+    save: "💾 Save as TXT",
+    copy: "📋 Copy",
+    undo: "↩️ Undo",
+    redo: "↪️ Redo",
+    language: "Language"
   },
   fr: {
     app_title: "📝 Formateur de texte pour ROK",
     export: "💾 Exporter le code ROK",
     output_label: "📤 Résultat formaté",
     output_placeholder: "Le texte formaté apparaîtra ici...",
-    size: "Taille"
+    size: "Taille",
+    save: "💾 Enregistrer en TXT",
+    copy: "📋 Copier",
+    undo: "↩️ Annuler",
+    redo: "↪️ Rétablir",
+    language: "Langue"
   }
 };
 
@@ -56,4 +71,16 @@ function setLanguage(lang) {
 
 document.getElementById("languageSelector").addEventListener("change", (e) => {
   setLanguage(e.target.value);
+});
+
+document.getElementById("languageSelector").addEventListener("change", (e) => {
+  const lang = e.target.value;
+  localStorage.setItem("rok_language", lang);
+  setLanguage(lang);
+});
+
+window.addEventListener("load", () => {
+  const lang = localStorage.getItem("rok_language") || "vi";
+  document.getElementById("languageSelector").value = lang;
+  setLanguage(lang);
 });

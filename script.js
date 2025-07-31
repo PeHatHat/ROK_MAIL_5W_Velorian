@@ -48,10 +48,17 @@ pickr.on('save', (color) => {
   pickr.hide();
 });
 
-// ========== EXPORT FUNCTION ==========
+// ========== EXPORT TO ROK TAGS ==========
 function convertToROKTags(node) {
   if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent;
+    const text = node.textContent.trim();
+    const placeholders = [
+      "✍️ Nhập văn bản tại đây...",
+      "✍️ Enter text here...",
+      "✍️ Entrez le texte ici..."
+    ];
+    if (placeholders.includes(text)) return ""; // Bỏ qua placeholder
+    return text;
   }
 
   let result = "";
@@ -62,13 +69,8 @@ function convertToROKTags(node) {
     } else {
       let childText = convertToROKTags(child);
 
-      // Nếu là DIV hoặc P, luôn thêm xuống dòng sau
       if (["DIV", "P"].includes(child.nodeName)) {
-        if (childText.trim() === "") {
-          result += "\n"; // dòng trống
-        } else {
-          result += childText + "\n"; // dòng có nội dung
-        }
+        result += (childText.trim() === "") ? "\n" : childText + "\n";
       } else {
         result += childText;
       }
@@ -78,7 +80,6 @@ function convertToROKTags(node) {
   let text = result;
   const style = node.style;
 
-  // Nếu toàn bộ node rỗng và không phải block thì bỏ qua
   if (text.trim() === "" && !["DIV", "P"].includes(node.nodeName)) {
     return "";
   }
@@ -111,91 +112,36 @@ function convertToROKTags(node) {
 
   return text;
 }
-function convertToROKTags(node) {
-  if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent;
-  }
-
-  let result = "";
-
-  node.childNodes.forEach(child => {
-    if (child.nodeName === "BR") {
-      result += "\n";
-    } else {
-      let childText = convertToROKTags(child);
-
-      // Nếu là DIV hoặc P, luôn thêm xuống dòng sau
-      if (["DIV", "P"].includes(child.nodeName)) {
-        if (childText.trim() === "") {
-          result += "\n"; // dòng trống
-        } else {
-          result += childText + "\n"; // dòng có nội dung
-        }
-      } else {
-        result += childText;
-      }
-    }
-  });
-
-  let text = result;
-  const style = node.style;
-
-  // Nếu toàn bộ node rỗng và không phải block thì bỏ qua
-  if (text.trim() === "" && !["DIV", "P"].includes(node.nodeName)) {
-    return "";
-  }
-
-  if (node.nodeType === Node.ELEMENT_NODE) {
-    const tag = node.nodeName.toLowerCase();
-
-    if (tag === "b" || style.fontWeight === "bold" || style.fontWeight >= 600) {
-      text = `<b>${text}</b>`;
-    }
-
-    if (tag === "i" || style.fontStyle === "italic") {
-      text = `<i>${text}</i>`;
-    }
-
-    if (style.textDecoration && style.textDecoration.includes("underline")) {
-      text = `<u>${text}</u>`;
-    }
-
-    if (style.fontSize && style.fontSize !== "16px") {
-      const size = parseInt(style.fontSize);
-      text = `<size=${size}>${text}</size>`;
-    }
-
-    if (style.color && style.color !== "rgb(0, 0, 0)") {
-      const hex = rgbToHex(style.color);
-      text = `<color=${hex}>${text}</color>`;
-    }
-  }
-
-  return text;
-}
-
 
 function rgbToHex(rgb) {
   const result = rgb.match(/\d+/g);
   if (!result) return "#000000";
-  return (
-    "#" +
-    result
-      .map(x => {
-        const hex = parseInt(x).toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-      })
-      .join("")
-  );
+  return "#" + result.map(x => {
+    const hex = parseInt(x).toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  }).join("");
 }
 
+// ========== EXPORT BUTTON ==========
 document.getElementById("exportBtn").addEventListener("click", () => {
   const editor = document.getElementById("editor");
-  const outputText = convertToROKTags(editor);
-  document.getElementById("output").textContent = outputText || "";
+  const rawOutput = convertToROKTags(editor).trim();
+
+  const output = document.getElementById("output");
+
+  if (!rawOutput) {
+    // Nếu rỗng, hiển thị lại placeholder ngôn ngữ hiện tại
+    const currentLang = document.getElementById("languageSelector").value;
+    const translations = window.translations || {}; // Từ lang.js
+    output.textContent = translations[currentLang]?.output_placeholder || "📤 Output is empty.";
+    alert("⚠️ Không có nội dung để xuất!");
+    return;
+  }
+
+  output.textContent = rawOutput;
 });
 
-// ========== COPY ==========
+// ========== COPY BUTTON ==========
 document.getElementById("copyBtn").addEventListener("click", () => {
   const text = document.getElementById("output").textContent;
   navigator.clipboard.writeText(text).then(() => {
@@ -203,7 +149,7 @@ document.getElementById("copyBtn").addEventListener("click", () => {
   });
 });
 
-// ========== PLACEHOLDER ==========
+// ========== PLACEHOLDER XỬ LÝ ==========
 const editor = document.getElementById("editor");
 
 editor.addEventListener("focus", () => {
@@ -220,4 +166,62 @@ editor.addEventListener("blur", () => {
 
 window.addEventListener("load", () => {
   editor.innerHTML = editor.dataset.placeholder;
+});
+
+// ========== SAVE TO FILE ==========
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const content = document.getElementById("output").textContent.trim();
+
+  if (!content) {
+    alert("⚠️ Không có nội dung để lưu!");
+    return;
+  }
+
+  const filename = prompt("📄 Nhập tên file (không cần đuôi .txt):", "vanban_rok");
+  if (filename === null) return;
+
+  const safeName = filename.trim() || "vanban_rok";
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = safeName + ".txt";
+  a.click();
+
+  URL.revokeObjectURL(a.href);
+});
+
+// ========== UNDO/REDO ==========
+document.getElementById("undoBtn").addEventListener("click", () => {
+  document.execCommand("undo");
+});
+
+document.getElementById("redoBtn").addEventListener("click", () => {
+  document.execCommand("redo");
+});
+// ========== Current number of characters ==========
+function updateCharCountLive() {
+  const editor = document.getElementById("editor");
+  const outputText = convertToROKTags(editor);
+  const charCountEl = document.getElementById("charCount");
+
+  const length = outputText.length;
+  charCountEl.textContent = `Số ký tự: ${length}/2000`;
+
+  if (length > 2000) {
+    charCountEl.style.color = "red";
+    charCountEl.textContent += " ⚠️ Vượt quá giới hạn!";
+  } else {
+    charCountEl.style.color = "#555";
+  }
+}
+
+// Gọi khi người dùng gõ hoặc dán
+editor.addEventListener("input", updateCharCountLive);
+
+// Gọi khi người dùng định dạng bằng nút toolbar (bấm nút in đậm, nghiêng...)
+document.querySelectorAll(".toolbar button, select").forEach(btn => {
+  btn.addEventListener("click", () => {
+    setTimeout(updateCharCountLive, 0); // Delay để lấy nội dung sau khi định dạng
+  });
 });

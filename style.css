@@ -40,13 +40,18 @@ body {
 .toolbar button,
 .toolbar select,
 .color-button {
-  padding: 6px 12px;
+  padding: 0 12px;
   font-size: 16px;
   cursor: pointer;
   border: 1px solid #ccc;
   border-radius: 6px;
   background: #f9f9f9;
   transition: background 0.2s, border-color 0.2s;
+  height: 40px;            /* đồng bộ chiều cao */
+  min-width: 40px;         /* đồng bộ chiều rộng tối thiểu */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .toolbar button:hover,
@@ -62,12 +67,9 @@ body {
 }
 
 .color-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.2em;
-  height: 3.2em;
   font-size: 18px;
+  background: black;
+  border: 1px solid #ccc;
 }
 
 #editor {
@@ -120,7 +122,7 @@ body {
   padding: 0 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  height: 50px;
+  height: 40px;             /* đồng bộ chiều cao */
   background: #fff;
 }
 
@@ -152,4 +154,31 @@ body {
 
 #copyBtn:hover {
   background-color: #45a049;
+}
+
+#saveBtn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#saveBtn:hover {
+  background-color: #0b7dda;
+}
+.footer {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  padding: 16px 0;
+  background-color: #f9f9f9;
+  border-top: 1px solid #ccc;
+}
+#charCount {
+  font-size: 14px;
+  font-family: 'Segoe UI', sans-serif;
 }
