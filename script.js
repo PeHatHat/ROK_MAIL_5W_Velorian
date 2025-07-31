@@ -1,3 +1,26 @@
+// ========== FORMAT BUTTONS ==========
+function toggleFormat(command) {
+  document.execCommand(command, false, null);
+}
+
+document.getElementById("boldBtn").addEventListener("click", () => toggleFormat("bold"));
+document.getElementById("italicBtn").addEventListener("click", () => toggleFormat("italic"));
+
+// ========== FONT SIZE ==========
+document.getElementById("fontSize").addEventListener("change", function () {
+  const size = this.value + "px";
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const range = selection.getRangeAt(0);
+  const span = document.createElement("span");
+  span.style.fontSize = size;
+  span.textContent = selection.toString();
+
+  range.deleteContents();
+  range.insertNode(span);
+});
+
 // ========== PICKR COLOR ==========
 let currentColor = "#000000";
 
@@ -20,113 +43,181 @@ const pickr = Pickr.create({
 
 pickr.on('save', (color) => {
   currentColor = color.toHEXA().toString();
-  applyStyleManual('color', currentColor);
+  document.execCommand("styleWithCSS", false, true);
+  document.execCommand("foreColor", false, currentColor);
   pickr.hide();
 });
 
-// ========== FORMAT BUTTONS ==========
-
-document.getElementById("boldBtn").addEventListener("click", () => {
-  document.execCommand("bold");
-});
-
-document.getElementById("italicBtn").addEventListener("click", () => {
-  document.execCommand("italic");
-});
-
-document.getElementById("underlineBtn").addEventListener("click", () => {
-  document.execCommand("underline");
-});
-
-document.getElementById("fontSize").addEventListener("change", () => {
-  const size = document.getElementById("fontSize").value;
-  applyStyleManual("fontSize", `${size}px`);
-});
-
-// Áp dụng style thủ công (cho color, size)
-function applyStyleManual(style, value) {
-  const selection = window.getSelection();
-  if (!selection.rangeCount) return;
-  const range = selection.getRangeAt(0);
-  if (range.collapsed) return;
-
-  const span = document.createElement("span");
-  span.style[style] = value;
-  span.appendChild(range.extractContents());
-  range.deleteContents();
-  range.insertNode(span);
-}
-
-// ========== LANG INIT ==========
-document.addEventListener("DOMContentLoaded", () => {
-  const lang = document.getElementById("languageSelector").value;
-  setLanguage(lang);
-});
-
-// ========== EXPORT ROK CODE ==========
-
-function rgbToHex(rgb) {
-  const result = rgb.match(/\d+/g);
-  if (!result) return '000000';
-  return result.map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
-}
-
-function convertNodeToROK(node) {
+// ========== EXPORT FUNCTION ==========
+function convertToROKTags(node) {
   if (node.nodeType === Node.TEXT_NODE) {
     return node.textContent;
   }
 
-  if (node.nodeType !== Node.ELEMENT_NODE) return '';
+  let result = "";
 
-  let content = '';
-  for (let child of node.childNodes) {
-    content += convertNodeToROK(child);
-  }
+  node.childNodes.forEach(child => {
+    if (child.nodeName === "BR") {
+      result += "\n";
+    } else {
+      let childText = convertToROKTags(child);
 
-  let tags = [];
+      // Nếu là DIV hoặc P, luôn thêm xuống dòng sau
+      if (["DIV", "P"].includes(child.nodeName)) {
+        if (childText.trim() === "") {
+          result += "\n"; // dòng trống
+        } else {
+          result += childText + "\n"; // dòng có nội dung
+        }
+      } else {
+        result += childText;
+      }
+    }
+  });
+
+  let text = result;
   const style = node.style;
 
-  if (style.fontWeight === 'bold' || node.tagName === 'B') tags.push(['<b>', '</b>']);
-  if (style.fontStyle === 'italic' || node.tagName === 'I') tags.push(['<i>', '</i>']);
-
-  if (style.color && style.color !== 'rgb(0, 0, 0)' && style.color !== '#000000') {
-    const hex = rgbToHex(style.color);
-    tags.push([`<color=#${hex}>`, `</color>`]);
+  // Nếu toàn bộ node rỗng và không phải block thì bỏ qua
+  if (text.trim() === "" && !["DIV", "P"].includes(node.nodeName)) {
+    return "";
   }
 
-  if (style.fontSize && style.fontSize !== '16px') {
-    const size = parseInt(style.fontSize);
-    tags.push([`<size=${size}>`, `</size>`]);
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const tag = node.nodeName.toLowerCase();
+
+    if (tag === "b" || style.fontWeight === "bold" || style.fontWeight >= 600) {
+      text = `<b>${text}</b>`;
+    }
+
+    if (tag === "i" || style.fontStyle === "italic") {
+      text = `<i>${text}</i>`;
+    }
+
+    if (style.textDecoration && style.textDecoration.includes("underline")) {
+      text = `<u>${text}</u>`;
+    }
+
+    if (style.fontSize && style.fontSize !== "16px") {
+      const size = parseInt(style.fontSize);
+      text = `<size=${size}>${text}</size>`;
+    }
+
+    if (style.color && style.color !== "rgb(0, 0, 0)") {
+      const hex = rgbToHex(style.color);
+      text = `<color=${hex}>${text}</color>`;
+    }
   }
 
-  for (let i = tags.length - 1; i >= 0; i--) {
-    content = tags[i][0] + content + tags[i][1];
+  return text;
+}
+function convertToROKTags(node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent;
   }
 
-  return content;
+  let result = "";
+
+  node.childNodes.forEach(child => {
+    if (child.nodeName === "BR") {
+      result += "\n";
+    } else {
+      let childText = convertToROKTags(child);
+
+      // Nếu là DIV hoặc P, luôn thêm xuống dòng sau
+      if (["DIV", "P"].includes(child.nodeName)) {
+        if (childText.trim() === "") {
+          result += "\n"; // dòng trống
+        } else {
+          result += childText + "\n"; // dòng có nội dung
+        }
+      } else {
+        result += childText;
+      }
+    }
+  });
+
+  let text = result;
+  const style = node.style;
+
+  // Nếu toàn bộ node rỗng và không phải block thì bỏ qua
+  if (text.trim() === "" && !["DIV", "P"].includes(node.nodeName)) {
+    return "";
+  }
+
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const tag = node.nodeName.toLowerCase();
+
+    if (tag === "b" || style.fontWeight === "bold" || style.fontWeight >= 600) {
+      text = `<b>${text}</b>`;
+    }
+
+    if (tag === "i" || style.fontStyle === "italic") {
+      text = `<i>${text}</i>`;
+    }
+
+    if (style.textDecoration && style.textDecoration.includes("underline")) {
+      text = `<u>${text}</u>`;
+    }
+
+    if (style.fontSize && style.fontSize !== "16px") {
+      const size = parseInt(style.fontSize);
+      text = `<size=${size}>${text}</size>`;
+    }
+
+    if (style.color && style.color !== "rgb(0, 0, 0)") {
+      const hex = rgbToHex(style.color);
+      text = `<color=${hex}>${text}</color>`;
+    }
+  }
+
+  return text;
+}
+
+
+function rgbToHex(rgb) {
+  const result = rgb.match(/\d+/g);
+  if (!result) return "#000000";
+  return (
+    "#" +
+    result
+      .map(x => {
+        const hex = parseInt(x).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      })
+      .join("")
+  );
 }
 
 document.getElementById("exportBtn").addEventListener("click", () => {
   const editor = document.getElementById("editor");
-  let result = '';
-  editor.childNodes.forEach(node => {
-    result += convertNodeToROK(node);
-  });
-
-  const output = document.getElementById("output");
-  output.textContent = result || "Văn bản xuất ra sẽ hiển thị ở đây...";
+  const outputText = convertToROKTags(editor);
+  document.getElementById("output").textContent = outputText || "";
 });
 
+// ========== COPY ==========
 document.getElementById("copyBtn").addEventListener("click", () => {
-  const output = document.getElementById("output").textContent;
-  if (!output.trim()) return;
+  const text = document.getElementById("output").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("📋 Đã sao chép thành công!");
+  });
+});
 
-  navigator.clipboard.writeText(output)
-    .then(() => {
-      alert("Đã sao chép mã ROK vào clipboard!");
-    })
-    .catch(err => {
-      console.error("Lỗi khi sao chép: ", err);
-      alert("Không thể sao chép. Trình duyệt không hỗ trợ?");
-    });
+// ========== PLACEHOLDER ==========
+const editor = document.getElementById("editor");
+
+editor.addEventListener("focus", () => {
+  if (editor.innerText.trim() === editor.dataset.placeholder) {
+    editor.innerHTML = "";
+  }
+});
+
+editor.addEventListener("blur", () => {
+  if (editor.innerText.trim() === "") {
+    editor.innerHTML = editor.dataset.placeholder;
+  }
+});
+
+window.addEventListener("load", () => {
+  editor.innerHTML = editor.dataset.placeholder;
 });
