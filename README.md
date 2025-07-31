@@ -47,9 +47,14 @@ Bạn có thể chạy thử trực tiếp qua GitHub Pages hoặc local:
 git clone https://github.com/PeHatHat/ROK_MAIL_5W_Velorian
 cd ROK_MAIL_5W_Velorian
 open index.html
+```
 
-📁 ROK_MAIL_5W_Velorian
+## 📁 ROK_MAIL_5W_Velorian
+
 ├── index.html         # Giao diện chính
+
 ├── style.css          # Giao diện và bố cục
+
 ├── script.js          # Toàn bộ logic xử lý định dạng và xuất mã
+
 └── lang.js            # Hệ thống đa ngôn ngữ (Việt / Anh / Pháp)
