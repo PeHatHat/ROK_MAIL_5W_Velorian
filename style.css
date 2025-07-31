@@ -182,3 +182,18 @@ body {
   font-size: 14px;
   font-family: 'Segoe UI', sans-serif;
 }
+#specialCharsContainer {
+  margin: 20px;
+}
+
+#specialChars button.char-btn {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 8px;
+  transition: background 0.2s;
+}
+
+#specialChars button.char-btn:hover {
+  background: #e0e0e0;
+}

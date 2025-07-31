@@ -225,3 +225,51 @@ document.querySelectorAll(".toolbar button, select").forEach(btn => {
     setTimeout(updateCharCountLive, 0); // Delay để lấy nội dung sau khi định dạng
   });
 });
+
+// ========== KÝ TỰ ĐẶC BIỆT ==========
+const specialCharacters = [
+  '→','←','↑','↓','↔','↕','⇨','⇦','⇧','⇩','➤','➠','➥','➔','➜','➲',
+  '✔','✘','✗','✓','✕','✖','☑','☒',
+  '✿','❀','✾','✽','✼','❁','❃','❋','✧','✦','✩','✰','✪','✫','✬','✭','✮','✯','✱',
+  '※','‼','⁉','❗','❕','❓','❔','✎','✏','✐','✍','✄','✂','✃','✆','✉','☎',
+  '♠','♣','♥','♦','♤','♧','♡','♢','⚀','⚁','⚂','⚃','⚄','⚅',
+  '∞','≠','≈','≤','≥','±','×','÷','∑','√','∫','∆','∇','∂','π','Ω','∅',
+  '©','®','™','°','‰','′','″','‡','†','§','¶','¤','¢','£','¥','€'
+];
+
+const specialCharsContainer = document.getElementById("specialChars");
+
+specialCharacters.forEach(char => {
+  const btn = document.createElement("button");
+  btn.textContent = char;
+  btn.className = "char-btn";
+  btn.style.margin = "4px";
+  btn.style.fontSize = "20px";
+  btn.style.cursor = "pointer";
+  btn.title = "Chèn ký tự";
+  btn.addEventListener("click", () => {
+    insertCharAtCursor(char);
+  });
+  specialCharsContainer.appendChild(btn);
+});
+
+function insertCharAtCursor(char) {
+  const editor = document.getElementById("editor");
+  editor.focus();
+
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const range = selection.getRangeAt(0);
+  range.deleteContents();
+
+  const textNode = document.createTextNode(char);
+  range.insertNode(textNode);
+
+  // Di chuyển con trỏ sau ký tự mới chèn
+  range.setStartAfter(textNode);
+  range.setEndAfter(textNode);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
